@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Mock Exam</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #3b82f6;
+      --wrong: #f87171;
+      --right: #4ade80;
+      --border: #374151;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    .quiz-card {
+      width: min(760px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .progress-wrap {
+      margin-bottom: 14px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #1f2937;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #60a5fa, #2563eb);
+      transition: width 0.2s ease;
+    }
+
+    .meta {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .question {
+      font-size: 1.55rem;
+      line-height: 1.35;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .choices {
+      display: grid;
+      gap: 12px;
+    }
+
+    .choice-row {
+      display: grid;
+      gap: 6px;
+    }
+
+    .choice-btn {
+      width: 100%;
+      text-align: left;
+      font-size: 1.05rem;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0f172a;
+      color: var(--text);
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .choice-btn:hover {
+      border-color: #60a5fa;
+      background: #172036;
+    }
+
+    .choice-btn.wrong {
+      border-color: #7f1d1d;
+      background: #3a1116;
+      color: #fecaca;
+    }
+
+    .choice-btn.correct {
+      border-color: #14532d;
+      background: #0d2318;
+      color: #bbf7d0;
+    }
+
+    .explanation-popup {
+      display: none;
+      width: 100%;
+      background: #0f172a;
+      border: 1px solid #14532d;
+      border-left: 5px solid var(--right);
+      border-radius: 10px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+      font-size: 0.98rem;
+      line-height: 1.45;
+      color: #bbf7d0;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .feedback {
+      font-size: 1rem;
+      color: var(--muted);
+      min-height: 24px;
+    }
+
+    .next-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 1rem;
+      color: #fff;
+      background: #94a3b8;
+      cursor: not-allowed;
+      transition: 0.18s ease;
+    }
+
+    .next-btn.enabled {
+      background: var(--primary);
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .result {
+      text-align: center;
+      padding: 24px 8px 8px;
+    }
+
+    .result h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        padding: 12px;
+      }
+
+      .quiz-card {
+        padding: 16px;
+      }
+
+      .question {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="quiz-card">
+    <div class="progress-wrap">
+      <div class="progress-header">
+        <span id="progressLabel">Progress</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+    <div class="meta" id="questionCounter"></div>
+    <section id="quizSection">
+      <div class="question" id="questionText"></div>
+      <div class="choices" id="choicesContainer"></div>
+      <div class="controls">
+        <p class="feedback" id="feedbackText"></p>
+        <button class="next-btn" id="nextButton" disabled>Next Question</button>
+      </div>
+    </section>
+
+    <section class="result hidden" id="resultSection">
+      <h2>Quiz Complete</h2>
+      <p id="scoreText"></p>
+      <button class="next-btn enabled" id="restartButton" type="button">Restart Quiz</button>
+    </section>
+  </main>
+
+  <script>
+    const quizData = [
+      {
+        "question": "Traditional SaaS software is being challenged because AI agents can now execute many workflows dynamically.",
+        "choices": ["True", "False"],
+        "correctIndex": 0,
+        "reasoning": "The lecture explains that AI agents can perform complex workflows dynamically, which threatens rigid SaaS tools."
+      },
+      {
+        "question": "What is the main risk of an un-grounded LLM?",
+        "choices": ["It cannot write code", "It may hallucinate and make up answers", "It cannot read files", "It only works offline"],
+        "correctIndex": 1,
+        "reasoning": "The course defines hallucination as an LLM guessing or inventing answers when it is not connected to live data."
+      },
+      {
+        "question": "Which expression matches the course framework for reliable AI?",
+        "choices": ["Python + VS Code = Output", "LLM Brain + Tool + Live Data = Grounded Action", "Copilot + Excel = Dashboard", "OpenClaw + API = Spreadsheet"],
+        "correctIndex": 1,
+        "reasoning": "This exact equation is presented in Week 1 as the core mechanism for grounded AI action."
+      },
+      {
+        "question": "OpenClaw is best described as .",
+        "choices": ["A paid cloud-only chatbot", "A free, local, autonomous AI agent", "A spreadsheet add-in", "A data warehouse"],
+        "correctIndex": 1,
+        "reasoning": "The lecture defines OpenClaw as a free, local, autonomous AI agent that runs on your computer."
+      },
+      {
+        "question": "Why is Conda useful?",
+        "choices": ["It replaces Python", "It creates isolated virtual environments", "It is only for Jupyter markdown", "It removes the need for packages"],
+        "correctIndex": 1,
+        "reasoning": "Conda is introduced as a way to separate projects so packages do not conflict with each other."
+      },
+      {
+        "question": "A variable in Python is best described as .",
+        "choices": ["A fixed keyword", "A named storage location for data", "A chart type", "A file extension"],
+        "correctIndex": 1,
+        "reasoning": "The lecture note defines a variable as a named storage location in memory that holds data."
+      },
+      {
+        "question": "Which symbol is the assignment operator in Python?",
+        "choices": ["==", ":", "=", "->"],
+        "correctIndex": 2,
+        "reasoning": "= assigns the value on the right to the variable on the left."
+      },
+      {
+        "question": "Which variable name is invalid in Python?",
+        "choices": ["student_count", "avgtemp", "2students", "class2"],
+        "correctIndex": 2,
+        "reasoning": "Variable names cannot begin with a digit in Python."
+      },
+      {
+        "question": "What is the output type of type(25)?",
+        "choices": ["float", "int", "str", "bool"],
+        "correctIndex": 1,
+        "reasoning": "25 is a whole number, so Python treats it as an integer."
+      },
+      {
+        "question": "In Python, the / operator always returns a .",
+        "choices": ["string", "boolean", "float", "list"],
+        "correctIndex": 2,
+        "reasoning": "The note states that standard division with / returns a float, even when dividing two integers."
+      },
+      {
+        "question": "String indexing in Python starts at .",
+        "choices": ["1", "-1", "0", "2"],
+        "correctIndex": 2,
+        "reasoning": "Python uses zero-based indexing, so the first character is at index 0."
+      },
+      {
+        "question": "Which data type represents truth values?",
+        "choices": ["str", "bool", "float", "tuple"],
+        "correctIndex": 1,
+        "reasoning": "bool is the Python type for True and False."
+      },
+      {
+        "question": "Which syntax is used for an f-string?",
+        "choices": ["\"My name is {name}\"", "f\"My name is {name}\"", "str(\"My name is {name}\")", "format\"My name is {name}\""],
+        "correctIndex": 1,
+        "reasoning": "An f-string must begin with f before the quotation marks."
+      },
+      {
+        "question": "An if statement condition in Python should end with a colon.",
+        "choices": ["True", "False"],
+        "correctIndex": 0,
+        "reasoning": "Python syntax requires a colon after the condition to begin the indented code block."
+      },
+      {
+        "question": "In Python, elif means .",
+        "choices": ["end loop if", "else if", "equal if", "extra line if"],
+        "correctIndex": 1,
+        "reasoning": "elif is Python's way of writing \"else if\" for multi-branch conditions."
+      },
+      {
+        "question": "The logical operator and returns True when .",
+        "choices": ["at least one condition is True", "both conditions are True", "both conditions are False", "the first condition is False"],
+        "correctIndex": 1,
+        "reasoning": "and requires both connected conditions to be true."
+      },
+      {
+        "question": "What numbers are produced by range(1, 5)?",
+        "choices": ["1, 2, 3, 4", "1, 2, 3, 4, 5", "0, 1, 2, 3, 4", "2, 3, 4, 5"],
+        "correctIndex": 0,
+        "reasoning": "range(1, 5) starts at 1 and stops before 5."
+      },
+      {
+        "question": "What does break do inside a loop?",
+        "choices": ["Skips one iteration", "Stops the loop completely", "Restarts the loop", "Creates an error"],
+        "correctIndex": 1,
+        "reasoning": "break immediately exits the loop when its condition is met."
+      },
+      {
+        "question": "A while loop continues running as long as its condition remains .",
+        "choices": ["False", "Empty", "True", "Integer"],
+        "correctIndex": 2,
+        "reasoning": "A while loop repeats only while its condition evaluates to True."
+      },
+      {
+        "question": "List comprehension is mainly used to .",
+        "choices": ["delete files", "create a new list in one line", "sort dictionaries only", "open notebooks"],
+        "correctIndex": 1,
+        "reasoning": "The lecture note presents list comprehension as a one-line way to build a new list from an existing sequence."
+      },
+      {
+        "question": "Lists are mutable in Python.",
+        "choices": ["True", "False"],
+        "correctIndex": 0,
+        "reasoning": "Lists can be changed after creation, for example with methods like append() and pop()."
+      },
+      {
+        "question": "Which data structure is immutable?",
+        "choices": ["list", "dictionary", "tuple", "set"],
+        "correctIndex": 2,
+        "reasoning": "Tuples are like lists, but their elements cannot be changed after creation."
+      },
+      {
+        "question": "A dictionary stores data as .",
+        "choices": ["rows and columns", "key-value pairs", "indexed-only numbers", "sorted duplicates"],
+        "correctIndex": 1,
+        "reasoning": "Dictionaries use keys to retrieve associated values instead of numeric positions."
+      },
+      {
+        "question": "What is a key feature of a set?",
+        "choices": ["It allows only strings", "It automatically removes duplicates", "It is always ordered", "It uses parentheses"],
+        "correctIndex": 1,
+        "reasoning": "A set keeps only unique values, so repeated items are automatically removed."
+      },
+      {
+        "question": "What does the append() method do for a list?",
+        "choices": ["Removes the first item", "Adds an item to the end", "Sorts the list", "Converts to tuple"],
+        "correctIndex": 1,
+        "reasoning": "append() inserts a new element at the end of an existing list."
+      },
+      {
+        "question": "What does len() return?",
+        "choices": ["The maximum value", "The data type", "The number of items", "The average"],
+        "correctIndex": 2,
+        "reasoning": "len() counts how many elements are in a sequence or collection."
+      },
+      {
+        "question": "After import math, what is the result of math.sqrt(25)?",
+        "choices": ["25", "10", "5.0", "2.5"],
+        "correctIndex": 2,
+        "reasoning": "sqrt() returns the square root, and the note shows math.sqrt(25) gives 5.0."
+      },
+      {
+        "question": "A pandas DataFrame is best described as .",
+        "choices": ["A one-dimensional Boolean object", "A two-dimensional tabular data structure", "A graphics-only format", "A loop method"],
+        "correctIndex": 1,
+        "reasoning": "The course explains that a DataFrame works like an Excel spreadsheet with rows and columns."
+      },
+      {
+        "question": "In real-world data analysis, the course recommends using instead of basic file-by-file reading with open().",
+        "choices": ["random", "pandas", "turtle", "math"],
+        "correctIndex": 1,
+        "reasoning": "The note says real-world business data is typically handled with pandas rather than basic open() line-by-line reading."
+      },
+      {
+        "question": "Which os function changes the working directory?",
+        "choices": ["os.getcwd()", "os.chdir()", "os.listdir()", "os.path.join()"],
+        "correctIndex": 1,
+        "reasoning": "os.chdir() changes the working directory, while os.getcwd() only shows the current one."
+      },
+      {
+        "question": "Which function loads a CSV file into a pandas DataFrame?",
+        "choices": ["pd.read_excel()", "pd.read_csv()", "pd.load_csv()", "pd.open_csv()"],
+        "correctIndex": 1,
+        "reasoning": "The lecture uses pd.read_csv() as the standard method for loading CSV files."
+      },
+      {
+        "question": "By default, df.head() shows how many rows?",
+        "choices": ["3", "5", "10", "All rows"],
+        "correctIndex": 1,
+        "reasoning": "df.head() shows the first 5 rows unless another number is given."
+      },
+      {
+        "question": "Which statement about iloc and loc is correct?",
+        "choices": ["iloc uses labels and loc uses positions", "Both only use labels", "iloc uses numerical positions and loc uses labels or conditions", "Both only use positions"],
+        "correctIndex": 2,
+        "reasoning": "The course distinguishes iloc as integer-position based and loc as label or condition based."
+      },
+      {
+        "question": "When combining multiple conditions in pandas filtering, you should use and wrap each condition in parentheses.",
+        "choices": ["and only", "&", "+", ","],
+        "correctIndex": 1,
+        "reasoning": "The note explicitly says pandas uses & for AND and requires each condition to be wrapped in parentheses."
+      },
+      {
+        "question": "Which command selects only integer columns?",
+        "choices": ["df.select_rows(int)", "df.select_dtypes(include=\"int\")", "df.filter(int)", "df.iloc[\"int\"]"],
+        "correctIndex": 1,
+        "reasoning": "select_dtypes(include=\"int\") is the method shown for selecting only integer-type columns."
+      },
+      {
+        "question": "In df.filter(items=[\"humidity\",\"windspeed\"], axis=1), what does axis=1 mean?",
+        "choices": ["Filter row indexes", "Filter column labels", "Delete missing rows", "Convert to integers"],
+        "correctIndex": 1,
+        "reasoning": "In pandas, axis=1 refers to columns, while axis=0 refers to rows."
+      },
+      {
+        "question": "In rename(), which axis value targets columns?",
+        "choices": ["axis=0", "axis=1", "axis=-1", "axis=None"],
+        "correctIndex": 1,
+        "reasoning": "The lecture note states that axis=1 targets column names when using rename()."
+      },
+      {
+        "question": "To save a CSV file without writing the index column, which argument should be used?",
+        "choices": ["header=False", "axis=1", "index=False", "drop=True"],
+        "correctIndex": 2,
+        "reasoning": "The course example for exporting data uses to_csv(..., index=False)."
+      },
+      {
+        "question": "What information does df.info() mainly provide?",
+        "choices": ["Only the mean of numeric columns", "Rows, columns, non-null counts, and data types", "Only missing values", "Only unique values"],
+        "correctIndex": 1,
+        "reasoning": "df.info() gives the structural overview of the dataset, including non-null counts and data types."
+      },
+      {
+        "question": "What does df.describe() mainly summarize by default?",
+        "choices": ["Only text columns", "Only index labels", "Numerical columns", "Only missing rows"],
+        "correctIndex": 2,
+        "reasoning": "The slide explains that describe() summarizes numerical columns by default."
+      },
+      {
+        "question": "What does value_counts() show for a column?",
+        "choices": ["The column type", "Frequency of each unique value", "The mean and median", "Correlation coefficients"],
+        "correctIndex": 1,
+        "reasoning": "value_counts() counts how many times each distinct value appears, which is especially useful for categorical variables."
+      },
+      {
+        "question": "What does unique() return?",
+        "choices": ["Distinct values without counts", "Sorted values with percentages", "Only the most common value", "Only missing values"],
+        "correctIndex": 0,
+        "reasoning": "unique() lists the different values in a column but does not show their frequencies."
+      },
+      {
+        "question": "Why would you use pd.to_datetime(..., errors=\"coerce\")?",
+        "choices": ["To sort by date automatically", "To turn invalid date values into missing values instead of stopping with an error", "To convert dates into integers", "To drop all date columns"],
+        "correctIndex": 1,
+        "reasoning": "The slide explains that errors=\"coerce\" converts bad date entries into missing values so the code can continue."
+      },
+      {
+        "question": "What does dropna() do?",
+        "choices": ["Replaces missing values with 0", "Deletes rows with missing values", "Sorts missing values", "Renames missing values"],
+        "correctIndex": 1,
+        "reasoning": "dropna() removes rows containing missing data, either across all columns or selected columns."
+      },
+      {
+        "question": "Which method is used to replace missing values with a mean or median?",
+        "choices": ["fillna()", "clip()", "agg()", "merge()"],
+        "correctIndex": 0,
+        "reasoning": "The course examples use fillna() for replacing missing values with a chosen statistic such as the mean."
+      },
+      {
+        "question": "What is the main purpose of groupby(...).agg(...)?",
+        "choices": ["To rename variables", "To compute selected summary statistics by group", "To create missing values", "To reverse rows"],
+        "correctIndex": 1,
+        "reasoning": "groupby(...).agg(...) is used to split data into groups and calculate chosen summaries like mean, median, std, and count."
+      },
+      {
+        "question": "In quantile-based winsorization, which pair is used for top 1 percent and bottom 1 percent capping?",
+        "choices": ["0.90 and 0.10", "0.95 and 0.05", "0.99 and 0.01", "1.00 and 0.00"],
+        "correctIndex": 2,
+        "reasoning": "The example uses the 99th and 1st percentiles to cap extreme values."
+      },
+      {
+        "question": "What is the goal of z-score standardization?",
+        "choices": ["Convert data to text", "Rescale data to mean 0 and standard deviation 1", "Remove all outliers", "Turn floats into integers"],
+        "correctIndex": 1,
+        "reasoning": "The lecture defines z-score standardization as rescaling variables so they are centered at 0 with standard deviation 1."
+      },
+      {
+        "question": "The correlation coefficient r r always ranges from .",
+        "choices": ["0 to 1", "-1 to 1", "-100 to 100", "1 to 10"],
+        "correctIndex": 1,
+        "reasoning": "The correlation note explicitly states that r r ranges from -1 to 1."
+      },
+      {
+        "question": "Correlation implies causation.",
+        "choices": ["True", "False"],
+        "correctIndex": 1,
+        "reasoning": "The lecture repeatedly warns that correlation does not prove causation."
+      },
+      {
+        "question": "Correlation mainly measures , while slope mainly measures .",
+        "choices": ["steepness; color", "tightness of relationship; rate of change", "prediction; missingness", "category; rank"],
+        "correctIndex": 1,
+        "reasoning": "The note distinguishes correlation as tightness and slope as the exact rate of change in units."
+      },
+      {
+        "question": "Which correlation method is based on ranks and is more resistant to outliers?",
+        "choices": ["Pearson", "Spearman", "OLS", "Logistic"],
+        "correctIndex": 1,
+        "reasoning": "Spearman converts values to ranks and is presented as more resistant to outliers than Pearson."
+      },
+      {
+        "question": "One major reason to examine a correlation matrix before regression is to detect among independent variables.",
+        "choices": ["autocorrect", "multicollinearity", "indexing", "winsorization"],
+        "correctIndex": 1,
+        "reasoning": "The course says correlation matrices help detect highly correlated predictors that can destabilize regression."
+      },
+      {
+        "question": "Simple Linear Regression uses independent variable and dependent variable.",
+        "choices": ["one; one", "two; one", "one; two", "many; none"],
+        "correctIndex": 0,
+        "reasoning": "Simple Linear Regression is defined as modeling one independent variable against one dependent variable."
+      },
+      {
+        "question": "In the regression equation, the slope coefficient tells you .",
+        "choices": ["the file size", "how much Y Y changes when X X increases by 1 unit", "the sample count only", "whether missing values exist"],
+        "correctIndex": 1,
+        "reasoning": "The slope coefficient is introduced as the exact rate of change linking a 1-unit increase in X X to the change in Y Y."
+      },
+      {
+        "question": "A t-statistic larger than about 2 in absolute value generally suggests .",
+        "choices": ["very weak evidence", "the signal is stronger than the noise", "the model should be deleted", "no relationship at all"],
+        "correctIndex": 1,
+        "reasoning": "The note explains that a t-stat above about 2 means the estimated effect is meaningfully larger than the uncertainty."
+      },
+      {
+        "question": "A p-value below 0.05 is usually interpreted as .",
+        "choices": ["not statistically significant", "statistically significant", "equal to correlation", "proof of causation"],
+        "correctIndex": 1,
+        "reasoning": "The lecture uses 0.05 as the standard threshold for statistical significance."
+      },
+      {
+        "question": "What does R 2 R 2 represent?",
+        "choices": ["The number of rows", "The proportion of variance explained by the model", "The p-value of the intercept", "The number of predictors only"],
+        "correctIndex": 1,
+        "reasoning": "R 2 R 2 is explained as the share of the outcome's variation that the model can account for."
+      },
+      {
+        "question": "In the L.I.N.E. assumptions for OLS, the letter E stands for .",
+        "choices": ["Extra variables", "Equal variance", "Expected value", "Extrapolation"],
+        "correctIndex": 1,
+        "reasoning": "In the course mnemonic, E stands for Equal Variance, also called homoscedasticity."
+      },
+      {
+        "question": "Which statement about regression is correct?",
+        "choices": ["A statistically significant coefficient always proves causation", "Regression can safely predict far outside the observed data range", "Outliers can strongly distort a regression line", "Regression does not require a research question"],
+        "correctIndex": 2,
+        "reasoning": "The note explains that OLS is sensitive to outliers because large errors can pull the regression line."
+      }
+    ];
+
+    const questionCounter = document.getElementById("questionCounter");
+    const questionText = document.getElementById("questionText");
+    const choicesContainer = document.getElementById("choicesContainer");
+    const feedbackText = document.getElementById("feedbackText");
+    const nextButton = document.getElementById("nextButton");
+    const resultSection = document.getElementById("resultSection");
+    const quizSection = document.getElementById("quizSection");
+    const scoreText = document.getElementById("scoreText");
+    const restartButton = document.getElementById("restartButton");
+    const progressFill = document.getElementById("progressFill");
+    const progressLabel = document.getElementById("progressLabel");
+    const progressPercent = document.getElementById("progressPercent");
+
+    let currentQuestion = 0;
+    let score = 0;
+    let canAdvance = false;
+
+    function updateProgress() {
+      const answeredCount = currentQuestion;
+      const percent = Math.round((answeredCount / quizData.length) * 100);
+      progressFill.style.width = `${percent}%`;
+      progressLabel.textContent = `${answeredCount} of ${quizData.length} answered`;
+      progressPercent.textContent = `${percent}%`;
+    }
+
+    function renderQuestion() {
+      const item = quizData[currentQuestion];
+      canAdvance = false;
+      nextButton.disabled = true;
+      nextButton.classList.remove("enabled");
+      feedbackText.textContent = "";
+      choicesContainer.innerHTML = "";
+
+      questionCounter.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+      questionText.textContent = item.question;
+      updateProgress();
+
+      item.choices.forEach((choice, index) => {
+        const row = document.createElement("div");
+        row.className = "choice-row";
+
+        const button = document.createElement("button");
+        button.className = "choice-btn";
+        button.textContent = choice;
+        button.type = "button";
+
+        const popup = document.createElement("div");
+        popup.className = "explanation-popup";
+        popup.textContent = item.reasoning;
+
+        button.addEventListener("click", () => {
+          if (canAdvance) {
+            return;
+          }
+
+          const buttons = choicesContainer.querySelectorAll(".choice-btn");
+          buttons.forEach((btn) => {
+            btn.disabled = true;
+          });
+
+          const correctRow = choicesContainer.children[item.correctIndex];
+          const correctButton = correctRow.querySelector(".choice-btn");
+          const correctPopup = correctRow.querySelector(".explanation-popup");
+          correctButton.classList.add("correct");
+          correctPopup.style.display = "block";
+
+          if (index === item.correctIndex) {
+            feedbackText.style.color = "var(--right)";
+            feedbackText.textContent = "Correct. You can now move to the next question.";
+            score += 1;
+          } else {
+            button.classList.add("wrong");
+            feedbackText.style.color = "var(--wrong)";
+            feedbackText.textContent = "Incorrect. Correct answer is highlighted. Click next to continue.";
+          }
+
+          canAdvance = true;
+          nextButton.disabled = false;
+          nextButton.classList.add("enabled");
+        });
+
+        row.appendChild(button);
+        row.appendChild(popup);
+        choicesContainer.appendChild(row);
+      });
+    }
+
+    nextButton.addEventListener("click", () => {
+      if (!canAdvance) {
+        return;
+      }
+
+      currentQuestion += 1;
+
+      if (currentQuestion >= quizData.length) {
+        quizSection.classList.add("hidden");
+        resultSection.classList.remove("hidden");
+        progressFill.style.width = "100%";
+        progressLabel.textContent = `${quizData.length} of ${quizData.length} answered`;
+        progressPercent.textContent = "100%";
+        scoreText.textContent = `Your final score: ${score} / ${quizData.length}`;
+      } else {
+        renderQuestion();
+      }
+    });
+
+    restartButton.addEventListener("click", () => {
+      currentQuestion = 0;
+      score = 0;
+      canAdvance = false;
+      resultSection.classList.add("hidden");
+      quizSection.classList.remove("hidden");
+      renderQuestion();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
