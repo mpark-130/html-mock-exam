@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data and Digital Transformation</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111827;
+      --card-soft: #0f172a;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --primary: #3b82f6;
+      --wrong: #f87171;
+      --right: #4ade80;
+      --border: #374151;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    .app-card {
+      width: min(900px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .hidden { display: none; }
+
+    .home-title { font-size: 2rem; margin: 0 0 8px; }
+    .home-sub { color: var(--muted); margin: 0 0 20px; }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .home-option {
+      border: 1px solid var(--border);
+      background: var(--card-soft);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .home-option:hover { border-color: #60a5fa; background: #172036; }
+    .home-option h3 { margin: 0 0 8px; font-size: 1.2rem; }
+    .home-option p { margin: 0; color: var(--muted); line-height: 1.45; }
+
+    .top-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+
+    .small-btn, .next-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      color: #fff;
+      background: #334155;
+      cursor: pointer;
+    }
+
+    .small-btn:hover { background: #475569; }
+
+    .progress-wrap { margin-bottom: 14px; }
+    .progress-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 0.92rem; color: var(--muted); margin-bottom: 6px; }
+    .progress-track { width: 100%; height: 10px; background: #1f2937; border-radius: 999px; overflow: hidden; }
+    .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #60a5fa, #2563eb); transition: width 0.2s ease; }
+
+    .meta { font-size: 0.95rem; color: var(--muted); margin-bottom: 14px; }
+    .question { font-size: 1.2rem; line-height: 1.45; font-weight: 700; margin-bottom: 18px; word-break: break-word; overflow-wrap: break-word; }
+    .question-code { background: #0a0f1a; border: 1px solid #2d3748; border-left: 3px solid #3b82f6; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: 0.9rem; font-family: "Courier New", Courier, monospace; color: #7dd3fc; white-space: pre-wrap; font-weight: 400; line-height: 1.6; width: 100%; box-sizing: border-box; }
+    .choices { display: grid; gap: 12px; }
+    .choice-row { display: grid; gap: 6px; }
+    .choice-btn { width: 100%; text-align: left; font-size: 1.02rem; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: #0f172a; color: var(--text); cursor: pointer; transition: 0.18s ease; }
+    .choice-btn:hover { border-color: #60a5fa; background: #172036; }
+    .choice-btn.wrong { border-color: #7f1d1d; background: #3a1116; color: #fecaca; }
+    .choice-btn.correct { border-color: #14532d; background: #0d2318; color: #bbf7d0; }
+
+    .explanation-popup { display: none; width: 100%; background: #0f172a; border: 1px solid #14532d; border-left: 5px solid var(--right); border-radius: 10px; padding: 12px 14px; font-size: 0.96rem; line-height: 1.45; color: #bbf7d0; }
+
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 16px; flex-wrap: wrap; }
+    .feedback { font-size: 1rem; color: var(--muted); min-height: 24px; margin: 0; }
+    .next-btn { background: #64748b; cursor: not-allowed; }
+    .next-btn.enabled { background: var(--primary); cursor: pointer; }
+
+    .result { text-align: center; padding: 24px 8px 8px; }
+    .result h2 { font-size: 2rem; margin-bottom: 10px; }
+
+    .notes-title { margin: 0; font-size: 1.5rem; }
+    .notes-subtitle { color: var(--muted); margin: 6px 0 16px; }
+    .notes-list { display: grid; gap: 12px; max-height: 72vh; overflow-y: auto; padding-right: 4px; }
+    .note-card { background: var(--card-soft); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    .note-card h3 { margin: 0 0 10px; font-size: 1.08rem; text-transform: capitalize; }
+    .note-card ul { margin: 0; padding-left: 18px; }
+    .note-card li { margin-bottom: 6px; color: #d1d5db; line-height: 1.35; }
+
+    @media (max-width: 900px) {
+      body { padding: 12px; }
+      .app-card { padding: 16px; }
+      .question { font-size: 1.1rem; }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 8px;
+        display: block;
+      }
+
+      .app-card {
+        width: 100%;
+        border-radius: 10px;
+        padding: 12px;
+        min-height: calc(100vh - 16px);
+      }
+
+      .home-title {
+        font-size: 1.5rem;
+      }
+
+      .home-sub {
+        font-size: 0.95rem;
+      }
+
+      .home-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .home-option {
+        padding: 14px;
+      }
+
+      .top-actions {
+        margin-bottom: 8px;
+      }
+
+      .small-btn,
+      .next-btn,
+      .choice-btn {
+        min-height: 44px;
+      }
+
+      .question {
+        font-size: 1rem;
+        line-height: 1.45;
+        margin-bottom: 12px;
+        word-break: break-word;
+        overflow-wrap: break-word;
+      }
+      .question-code {
+        font-size: 0.82rem;
+        padding: 10px 12px;
+      }
+
+      .meta,
+      .progress-header,
+      .feedback {
+        font-size: 0.9rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .next-btn {
+        width: 100%;
+      }
+
+      .explanation-popup {
+        font-size: 0.92rem;
+        padding: 10px 12px;
+      }
+
+      .notes-title {
+        font-size: 1.25rem;
+      }
+
+      .notes-subtitle {
+        font-size: 0.9rem;
+      }
+
+      .notes-list {
+        max-height: calc(100vh - 220px);
+        gap: 10px;
+      }
+
+      .note-card {
+        padding: 12px;
+      }
+
+      .note-card li {
+        font-size: 0.93rem;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+  <main class="app-card">
+    <section id="homeSection">
+      <h1 class="home-title">Data and Digital Transformation</h1>
+      <p class="home-sub">Choose how you want to study.</p>
+      <div class="home-grid">
+        <button class="home-option" id="openReview" type="button">
+          <h3>Last Minute Review</h3>
+          <p>Open quick notes generated from <code>last_minute_review.pdf</code>.</p>
+        </button>
+        <button class="home-option" id="openExam" type="button">
+          <h3>Mock Exam 1</h3>
+          <p>Take the interactive quiz generated from <code>final_mock_exam.pdf</code>.</p>
+        </button>
+        <button class="home-option" id="resumeExam" type="button">
+          <h3>Resume Mock Exam</h3>
+          <p>Continue from where you left off.</p>
+        </button>
+      </div>
+    </section>
+
+    <section id="mockExamSection" class="hidden">
+      <div class="top-actions">
+        <button class="small-btn" id="backFromExam" type="button">Home</button>
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-header">
+          <span id="progressLabel">Progress</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="meta" id="questionCounter"></div>
+      <section id="quizSection">
+        <div class="question" id="questionText"></div>
+        <div class="choices" id="choicesContainer"></div>
+        <div class="controls">
+          <p class="feedback" id="feedbackText"></p>
+          <button class="next-btn" id="nextButton" disabled>Next Question</button>
+        </div>
+      </section>
+
+      <section class="result hidden" id="resultSection">
+        <h2>Quiz Complete</h2>
+        <p id="scoreText"></p>
+        <button class="next-btn enabled" id="restartButton" type="button">Restart Quiz</button>
+      </section>
+    </section>
+
+    <section id="reviewSection" class="hidden">
+      <div class="top-actions">
+        <button class="small-btn" id="backFromReview" type="button">Home</button>
+      </div>
+      <h2 class="notes-title">Last Minute Review</h2>
+      <p class="notes-subtitle">Notes extracted from <code>last_minute_review.pdf</code>.</p>
+      <div class="notes-list" id="notesContainer"></div>
+    </section>
+  </main>
+
+  <script>
+    // Set up PDF.js worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    // Fallback quiz data in case PDF loading fails
+    const fallbackQuizData = [
+      {
+            "question": "What is the main risk of an un-grounded LLM?",
+            "choices": [
+                  "It cannot write code",
+                  "It may hallucinate and make up answers",
+                  "It cannot read files",
+                  "It only works offline"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The course defines hallucination as an LLM giving a confident but false or invented answer when it is not properly connected to tools or live data."
+      },
+      {
+            "question": "Traditional SaaS software is being challenged because AI agents can now",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 0,
+            "reasoning": "The lectures argue that rigid SaaS products are under pressure because AI agents can handle many tasks more flexibly across tools and workflows."
+      },
+      {
+            "question": "What is the role of a person who manages a fleet of AI agents to run business",
+            "choices": [
+                  "Data Engineer",
+                  "Software Developer",
+                  "Agent Orchestrator",
+                  "SaaS Manager"
+            ],
+            "correctIndex": 2,
+            "reasoning": "An Agent Orchestrator is responsible for coordinating and supervising multiple AI agents to complete business tasks effectively."
+      },
+      {
+            "question": "An un-grounded LLM can accurately retrieve your real-time bank balance",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A model without access to tools or live systems cannot fetch real-time personal data such as a current bank balance."
+      },
+      {
+            "question": "Which expression matches the course framework for reliable AI?",
+            "choices": [
+                  "Python + VS Code = Output",
+                  "LLM + Tool + Live Data = Grounded Action",
+                  "Copilot + Excel = Dashboard",
+                  "OpenClaw + API = Spreadsheet"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The course emphasizes that AI becomes reliable when the language model is combined with tools and real data instead of operating from guesswork alone."
+      },
+      {
+            "question": "OpenClaw is best described as:",
+            "choices": [
+                  "A paid enterprise SaaS platform",
+                  "A free, local, autonomous AI agent",
+                  "A cloud-based coding assistant",
+                  "A Bloomberg terminal plugin"
+            ],
+            "correctIndex": 1,
+            "reasoning": "OpenClaw is presented as a free and local autonomous agent framework rather than a traditional paid SaaS tool."
+      },
+      {
+            "question": "Which messaging platform does OpenClaw use as its user interface?",
+            "choices": [
+                  "Slack",
+                  "Microsoft Teams",
+                  "Telegram, Discord, or WhatsApp",
+                  "Gmail"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The course explains that OpenClaw uses common messaging apps as the user-facing interface layer."
+      },
+      {
+            "question": "GitHub Copilot can fully replace the need for domain knowledge in business",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The lectures stress that AI helps users work faster, but domain knowledge is still needed to ask the right questions and judge whether outputs make sense."
+      },
+      {
+            "question": "Fill in the blank: “AI does not ______ everyone — it ______ the gap between",
+            "choices": [
+                  "Equalize / Amplifies",
+                  "Help / Closes",
+                  "Equalize / Closes",
+                  "Replace / Creates"
+            ],
+            "correctIndex": 0,
+            "reasoning": "The course repeatedly argues that AI increases the advantage of skilled users rather than making everyone equally capable."
+      },
+      {
+            "question": "Why is Conda useful?",
+            "choices": [
+                  "It replaces Python",
+                  "It creates isolated virtual environments",
+                  "It is only for Jupyter markdown",
+                  "It removes the need for packages"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Conda helps separate project environments so packages and versions do not conflict across different tasks."
+      },
+      {
+            "question": "A variable in Python is best described as:",
+            "choices": [
+                  "A fixed keyword",
+                  "A named storage location for data",
+                  "A chart type",
+                  "A file extension"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Variables are names that point to values stored in memory, which lets the program reuse and modify data."
+      },
+      {
+            "question": "Which symbol is the assignment operator in Python?",
+            "choices": [
+                  "==",
+                  ":",
+                  "=",
+                  "->"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The single equals sign assigns a value to a variable, while double equals checks equality."
+      },
+      {
+            "question": "Which variable name is invalid in Python?",
+            "choices": [
+                  "student_count",
+                  "avgtemp",
+                  "2students",
+                  "class2"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Python variable names cannot begin with a digit, so 2students breaks the naming rules."
+      },
+      {
+            "question": "What is the output type of type(25)?",
+            "choices": [
+                  "float",
+                  "int",
+                  "str",
+                  "bool"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The value 25 is a whole number, and Python stores whole numbers as integers."
+      },
+      {
+            "question": "In Python, the / operator always returns a:",
+            "choices": [
+                  "string",
+                  "boolean",
+                  "float",
+                  "list"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Standard division in Python produces a floating-point result, even when both inputs are integers."
+      },
+      {
+            "question": "What is the output of the following code? mylist = [1, 2, 3, 4, 5] print(mylist[1:4])",
+            "choices": [
+                  "[1, 2, 3]",
+                  "[2, 3, 4]",
+                  "[2, 3, 4, 5]",
+                  "[1, 2, 3, 4]"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Python slicing includes the start index and excludes the end index, so positions 1, 2, and 3 are returned.",
+      },
+      {
+            "question": "Python list indexing starts at 1.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Python uses zero-based indexing, so the first item is at index 0."
+      },
+      {
+            "question": "Which data type represents truth values?",
+            "choices": [
+                  "str",
+                  "bool",
+                  "float",
+                  "tuple"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Boolean values are True and False, and their type in Python is bool."
+      },
+      {
+            "question": "Which syntax is used for an f-string?",
+            "choices": [
+                  "\"My name is {name}\"",
+                  "f\"My name is {name}\"",
+                  "str(\"My name is {name}\")",
+                  "format\"My name is {name}\""
+            ],
+            "correctIndex": 1,
+            "reasoning": "An f-string must have f directly before the opening quotation mark to evaluate expressions inside braces."
+      },
+      {
+            "question": "An if statement condition in Python should end with a colon.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 0,
+            "reasoning": "Python requires a colon at the end of control statements such as if, elif, else, for, and while."
+      },
+      {
+            "question": "In Python, elif means:",
+            "choices": [
+                  "end loop if",
+                  "else if",
+                  "equal if",
+                  "extra line if"
+            ],
+            "correctIndex": 1,
+            "reasoning": "elif adds another condition branch after an initial if statement."
+      },
+      {
+            "question": "The logical operator and returns True when:",
+            "choices": [
+                  "At least one condition is True",
+                  "Both conditions are True",
+                  "Both conditions are False",
+                  "The first condition is False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "and is only true when every connected condition is true. "
+      },
+      {
+            "question": "What does the following code do? python for fruit in [\"apple\", \"banana\", \"cherry\"]: print(fruit)",
+            "choices": [
+                  "Prints all three fruits at once",
+                  "Prints each fruit one by one on separate lines",
+                  "Creates a new list",
+                  "Returns an error"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The loop runs once for each item, so each fruit is printed separately in sequence.",
+            "code": "for fruit in [\"apple\", \"banana\", \"cherry\"]:\n    print(fruit)"
+      },
+      {
+            "question": "What numbers are produced by range(1, 5)?",
+            "choices": [
+                  "1, 2, 3, 4",
+                  "1, 2, 3, 4, 5",
+                  "0, 1, 2, 3, 4",
+                  "2, 3, 4, 5"
+            ],
+            "correctIndex": 0,
+            "reasoning": "range(1, 5) starts at 1 and stops before 5."
+      },
+      {
+            "question": "What does break do inside a loop?",
+            "choices": [
+                  "Skips one iteration",
+                  "Stops the loop completely",
+                  "Restarts the loop",
+                  "Creates an error"
+            ],
+            "correctIndex": 1,
+            "reasoning": "break exits the loop immediately when a chosen condition is met."
+      },
+      {
+            "question": "A while loop runs only once, regardless of the condition.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A while loop continues running as long as its condition stays true."
+      },
+      {
+            "question": "What is the correct syntax to define a function in Python?",
+            "choices": [
+                  "function add(x, y):",
+                  "def add(x, y):",
+                  "define add(x, y):",
+                  "fun add(x, y):"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Python uses the def keyword to define a function."
+      },
+      {
+            "question": "List comprehension is mainly used to:",
+            "choices": [
+                  "delete files",
+                  "create a new list in one line",
+                  "sort dictionaries only"
+            ],
+            "correctIndex": 1,
+            "reasoning": "List comprehension is a compact way to build a list by transforming or ltering another iterable."
+      },
+      {
+            "question": "Lists are mutable in Python.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 0,
+            "reasoning": "Lists can be modified after creation, for example by adding, removing, or changing elements."
+      },
+      {
+            "question": "Which data structure is immutable?",
+            "choices": [
+                  "list",
+                  "dictionary",
+                  "tuple",
+                  "set"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Tuples cannot be changed after they are created, which is what immutable means."
+      },
+      {
+            "question": "Which data structure does NOT allow duplicate values?",
+            "choices": [
+                  "List",
+                  "Tuple",
+                  "Set",
+                  "Dictionary value"
+            ],
+            "correctIndex": 2,
+            "reasoning": "A set automatically keeps only unique values, so duplicates are removed."
+      },
+      {
+            "question": "A dictionary stores data as:",
+            "choices": [
+                  "rows and columns",
+                  "key-value pairs",
+                  "indexed-only numbers",
+                  "sorted duplicates"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Dictionaries map keys to values, which makes them useful for fast lookup by name rather than by position."
+      },
+      {
+            "question": "What is the output of the following code? mydict = {\"name\": \"John\", \"age\": 25} print(mydict[\"age\"])",
+            "choices": [
+                  "\"name\"",
+                  "\"John\"",
+                  "25",
+                  "Error"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The key \"age\" points to the value 25, so that value is returned.",
+            "code": "mydict = {\"name\": \"John\", \"age\": 25}\nprint(mydict[\"age\"])"
+      },
+      {
+            "question": "What does the append() method do for a list?",
+            "choices": [
+                  "Removes the first item",
+                  "Adds an item to the end",
+                  "Sorts the list",
+                  "Converts to tuple"
+            ],
+            "correctIndex": 1,
+            "reasoning": "append() inserts one new element at the end of the existing list."
+      },
+      {
+            "question": "What does len() return?",
+            "choices": [
+                  "The maximum value",
+                  "The data type",
+                  "The number of items",
+                  "The average"
+            ],
+            "correctIndex": 2,
+            "reasoning": "len() counts how many elements are inside a sequence or collection."
+      },
+      {
+            "question": "After import math, what is the result of math.sqrt(25)?",
+            "choices": [
+                  "25",
+                  "10",
+                  "5.0",
+                  "2.5"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The square root of 25 is 5, and math.sqrt() returns the result as a float."
+      },
+      {
+            "question": "A pandas DataFrame is best described as:",
+            "choices": [
+                  "A Python list",
+                  "An Excel spreadsheet or SQL table",
+                  "A plain text le",
+                  "A loop method"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A DataFrame stores tabular data in rows and columns, which makes it similar to spreadsheets and database tables."
+      },
+      {
+            "question": "In real-world data analysis, the course recommends using ______ instead of",
+            "choices": [
+                  "random",
+                  "pandas",
+                  "turtle",
+                  "math"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Pandas is designed for structured tabular data and is much more efficient for real-world business datasets."
+      },
+      {
+            "question": "Which os function changes the working directory?",
+            "choices": [
+                  "os.getcwd()",
+                  "os.chdir()",
+                  "os.listdir()",
+                  "os.path.join()"
+            ],
+            "correctIndex": 1,
+            "reasoning": "os.chdir() changes the current working directory, while os.getcwd() only displays it."
+      },
+      {
+            "question": "Which pandas method is used to load a CSV file into a DataFrame?",
+            "choices": [
+                  "pd.load_csv()",
+                  "pd.open_csv()",
+                  "pd.read_csv()"
+            ],
+            "correctIndex": 2,
+            "reasoning": "pd.read_csv() is the standard pandas function for importing CSV data into a DataFrame."
+      },
+      {
+            "question": "By default, df.head() shows how many rows?",
+            "choices": [
+                  "3",
+                  "5",
+                  "10",
+                  "All rows"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Unless another value is specified, head() displays the first 5 rows."
+      },
+      {
+            "question": "Which statement about iloc and loc is correct?",
+            "choices": [
+                  "iloc uses labels and loc uses positions",
+                  "Both only use labels",
+                  "iloc uses numerical positions and loc uses labels or conditions",
+                  "Both only use positions"
+            ],
+            "correctIndex": 2,
+            "reasoning": "iloc is position-based indexing, while loc is label-based and can also be used with Boolean conditions."
+      },
+      {
+            "question": "To select only rows where the season column equals 2, which expression is correct?",
+            "choices": [
+                  "df.loc[df[\"index\"] == 2]",
+                  "df.loc[df[\"season\"] == 2]",
+                  "df.loc[df[\"row\"] == 2]",
+                  "df.loc[df[\"ﬁ lter\"] == 2]"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The filter must reference the actual column name you want to test, which is season."
+      },
+      {
+            "question": "What should you use when combining multiple conditions in pandas filtering?",
+            "choices": [
+                  "and only",
+                  "&, with each condition wrapped in parentheses",
+                  "+",
+                  ","
+            ],
+            "correctIndex": 1,
+            "reasoning": "Pandas uses elementwise logical operators such as &, and each separate condition must be wrapped in parentheses."
+      },
+      {
+            "question": "To select only integer columns from a DataFrame, which code is correct?",
+            "choices": [
+                  "df.select_rows(int)",
+                  "df.select_dtypes(include=\"int\")",
+                  "df.filter(int)",
+                  "df.iloc[\"int\"]"
+            ],
+            "correctIndex": 1,
+            "reasoning": "select_dtypes() is designed for type-based filtering, and include=\"int\" keeps integer columns."
+      },
+      {
+            "question": "In a pandas operation, what does axis=1 refer to?",
+            "choices": [
+                  "Rows",
+                  "Values",
+                  "Columns",
+                  "Index numbers"
+            ],
+            "correctIndex": 2,
+            "reasoning": "In pandas, axis 0 is the row direction and axis 1 is the column direction."
+      },
+      {
+            "question": "Which method would you use to rename a column in a DataFrame?",
+            "choices": [
+                  ".relabel()",
+                  ".rename()",
+                  ".change()",
+                  ".column_name()"
+            ],
+            "correctIndex": 1,
+            "reasoning": ".rename() is the pandas method used to change row or column labels."
+      },
+      {
+            "question": "In rename(), which axis value targets columns?",
+            "choices": [
+                  "axis=0",
+                  "axis=1",
+                  "axis=-1",
+                  "axis=None"
+            ],
+            "correctIndex": 1,
+            "reasoning": "axis=1 tells pandas to apply the renaming to columns rather than rows."
+      },
+      {
+            "question": "To save a CSV file without writing the index column, which argument should you use?",
+            "choices": [
+                  "header=False",
+                  "axis=1",
+                  "index=False",
+                  "drop=True"
+            ],
+            "correctIndex": 2,
+            "reasoning": "index=False prevents pandas from exporting the row index as an extra column."
+      },
+      {
+            "question": "What information does df.info() mainly provide?",
+            "choices": [
+                  "Only the mean of numeric columns",
+                  "Rows, columns, non-null counts, and data types",
+                  "Only missing values",
+                  "Only unique values"
+            ],
+            "correctIndex": 1,
+            "reasoning": "info() is a structural summary of the DataFrame, not a statistical summary."
+      },
+      {
+            "question": "What does df.describe() mainly summarize by default?",
+            "choices": [
+                  "Only text columns",
+                  "Only index labels",
+                  "Numerical columns",
+                  "Only missing rows"
+            ],
+            "correctIndex": 2,
+            "reasoning": "By default, describe() returns summary statistics for numeric columns such as mean, standard deviation, and quartiles."
+      },
+      {
+            "question": "What does value_counts() show for a column?",
+            "choices": [
+                  "The column type",
+                  "Frequency of each unique value",
+                  "The mean and median",
+                  "Correlation coefficients"
+            ],
+            "correctIndex": 1,
+            "reasoning": "value_counts() counts how often each distinct value appears in a Series."
+      },
+      {
+            "question": "What does unique() return?",
+            "choices": [
+                  "Distinct values without counts",
+                  "Sorted values with percentages",
+                  "Only the most common value",
+                  "Only missing values"
+            ],
+            "correctIndex": 0,
+            "reasoning": "unique() lists the different observed values but does not count them."
+      },
+      {
+            "question": "Why would you use pd.to_datetime(..., errors=\"coerce\")?",
+            "choices": [
+                  "To sort by date automatically",
+                  "To turn invalid date values into missing values instead of stopping with an error",
+                  "To convert dates into integers",
+                  "To drop all date columns"
+            ],
+            "correctIndex": 1,
+            "reasoning": "errors=\"coerce\" converts bad date strings to missing values so the rest of the code can continue running."
+      },
+      {
+            "question": "Which pandas method is used to detect missing values in a column?",
+            "choices": [
+                  ".missing()",
+                  ".isnull()",
+                  ".isna()",
+                  "Both B and C are correct"
+            ],
+            "correctIndex": 3,
+            "reasoning": ".isnull() and.isna() are equivalent in pandas and both identify missing values."
+      },
+      {
+            "question": "Deleting rows with missing values is always the best solution, regardless of",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Removing missing rows can throw away too much information, especially in smaller datasets or when missingness is systematic."
+      },
+      {
+            "question": "What does dropna() do by default?",
+            "choices": [
+                  "Drops all columns with missing values",
+                  "Drops any row that has at least one missing value",
+                  "Replaces NaN with 0",
+                  "Returns a count of missing values"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The default behavior of dropna() is to remove rows containing missing values."
+      },
+      {
+            "question": "Which method is used to replace missing values with a mean or median? df[\"column\"].fillna(df[\"column\"].________())",
+            "choices": [
+                  "fillna()",
+                  "clip()",
+                  "agg()",
+                  "merge()"
+            ],
+            "correctIndex": 0,
+            "reasoning": "fillna() is used to insert a chosen replacement value such as a column mean or median."
+      },
+      {
+            "question": "To replace missing values in a column with the column mean, which code correctly fills in the blank?",
+            "choices": [
+                  "median",
+                  "average",
+                  "mean",
+                  "Either A or C"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The blank asks specifically for replacement with the column mean, so the correct method is mean().",
+            
+      },
+      {
+            "question": "What is the main purpose of groupby(...).agg(...)?",
+            "choices": [
+                  "To rename variables",
+                  "To compute selected summary statistics by group",
+                  "To create missing values",
+                  "To reverse rows"
+            ],
+            "correctIndex": 1,
+            "reasoning": "groupby() splits the data into categories and agg() calculates summary statistics such as mean, count, or standard deviation for each group."
+      },
+      {
+            "question": "In the.groupby() function, what does.agg() stand for?",
+            "choices": [
+                  "Aggregate",
+                  "Align",
+                  "Argument",
+                  "Adjust"
+            ],
+            "correctIndex": 0,
+            "reasoning": ".agg() is short for aggregate because it summarizes grouped data using one or more functions."
+      },
+      {
+            "question": "Which chart type is best for spotting individual extreme outlier dots in your data?",
+            "choices": [
+                  "Histogram",
+                  "Line chart",
+                  "Boxplot",
+                  "Pie chart"
+            ],
+            "correctIndex": 2,
+            "reasoning": "A boxplot clearly displays outliers as points beyond the whiskers, making extremes easier to see."
+      },
+      {
+            "question": "What is winsorization?",
+            "choices": [
+                  "Deleting all outliers from the dataset",
+                  "Capping extreme values at defined quantile limits instead of removing them",
+                  "Replacing missing values with the mean",
+                  "Sorting the data from smalfilest to largest"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Winsorization reduces the influence of extreme values while keeping the observations in the dataset."
+      },
+      {
+            "question": "In quantile-based winsorization, which pair is used for top 1 percent and",
+            "choices": [
+                  "0.90 and 0.10",
+                  "0.95 and 0.05",
+                  "0.99 and 0.01",
+                  "1.00 and 0.00"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Top 1 percent and bottom 1 percent capping uses the 99th and 1st percentiles."
+      },
+      {
+            "question": "The Z-score method identifies outliers based on how many standard deviations from the mean?",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 0,
+            "reasoning": "Z-scores measure distance from the mean in standard deviation units, which is why they are used for outlier detection."
+      },
+      {
+            "question": "What is the goal of z-score standardization?",
+            "choices": [
+                  "Convert data to text",
+                  "Rescale data to mean 0 and standard deviation 1",
+                  "Remove all outliers",
+                  "Turn floats into integers"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Standardization makes variables comparable by centering them at 0 and scaling them to a standard deviation of 1."
+      },
+      {
+            "question": "Forward fill uses the next available value to replace a missing value in time-series data?",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Forward fill uses the previous observed value, not the next one. Using the next value would be backward fill."
+      },
+      {
+            "question": "What is the range of a Pearson correlation coefficient (r)?",
+            "choices": [
+                  "0 to 1",
+                  "-100 to 100",
+                  "-1 to 1",
+                  "0 to 100"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Correlation strength and direction are always measured on a scale from -1 to 1."
+      },
+      {
+            "question": "Correlation implies causation.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Two variables may move together for many reasons, so correlation alone does not prove that one causes the other."
+      },
+      {
+            "question": "Correlation mainly measures ______, while slope mainly measures ______.",
+            "choices": [
+                  "steepness; color",
+                  "tightness of relationship; rate of change",
+                  "prediction; missingness",
+                  "category; rank"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Correlation tells how closely two variables move together, while slope tells how much Y changes for a one-unit increase in X."
+      },
+      {
+            "question": "A steep regression line always means a strong correlation between two",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A steep slope only shows the rate of change in units, not how tightly the data points follow the line."
+      },
+      {
+            "question": "Which correlation method should you use when your data is skewed or has outliers?",
+            "choices": [
+                  "Pearson",
+                  "Spearman",
+                  "OLS",
+                  "Z-score"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Spearman uses ranks instead of raw values, so it is less sensitive to skewness and outliers."
+      },
+      {
+            "question": "One major reason to examine a correlation matrix before regression is to",
+            "choices": [
+                  "autocorrect",
+                  "multicollinearity",
+                  "indexing",
+                  "winsorization"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A correlation matrix helps identify predictors that are highly correlated with each other, which can destabilize regression estimates."
+      },
+      {
+            "question": "Simple Linear Regression uses ______ independent variable and ______ dependent variable?",
+            "choices": [
+                  "one; one",
+                  "two; one",
+                  "one; two",
+                  "many; none"
+            ],
+            "correctIndex": 0,
+            "reasoning": "Simple Linear Regression models the relationship between one predictor and one outcome variable."
+      },
+      {
+            "question": "In regression, the ______ tells you how much Y changes for every 1-unit increase in X?",
+            "choices": [
+                  "R-squared",
+                  "P-value",
+                  "Intercept",
+                  "Coefficient (Beta)"
+            ],
+            "correctIndex": 3,
+            "reasoning": "The coefficient, or slope, is the term that captures the exact rate of change between X and Y."
+      },
+      {
+            "question": "A t-statistic larger than about 2 in absolute value generally suggests:",
+            "choices": [
+                  "very weak evidence",
+                  "the signal is stronger than the noise",
+                  "the model should be deleted",
+                  "no relationship at all"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A large absolute t-statistic means the estimated effect is large relative to its uncertainty."
+      },
+      {
+            "question": "A p-value of 0.03 means:",
+            "choices": [
+                  "There is a 97% chance the result is random",
+                  "There is a 3% chance the result happened by pure luck, so it is statistically significant",
+                  "The model explains 3% of the variance",
+                  "The coefficient is 0.03"
+            ],
+            "correctIndex": 1,
+            "reasoning": "In course-style interpretation, a p-value below 0.05 is treated as statistically significant, meaning the observed result would be unlikely under the null hypothesis."
+      },
+      {
+            "question": "A p-value must be below ______ to be considered statistically significant at the 5% level?",
+            "choices": [
+                  "0.10",
+                  "0.50",
+                  "0.05",
+                  "0.01"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The standard threshold used in the course is 0.05."
+      },
+      {
+            "question": "What does R-squared (R^2) measure in a regression model?",
+            "choices": [
+                  "The slope of the regression line",
+                  "How much variance in Y is explained by the model",
+                  "The number of observations used",
+                  "The standard deviation of residuals"
+            ],
+            "correctIndex": 1,
+            "reasoning": "R^2 measures the share of variation in the dependent variable that the model explains."
+      },
+      {
+            "question": "What does the \"L\" in the L.I.N.E. regression assumptions stand for?",
+            "choices": [
+                  "Large sample size",
+                  "Linearity",
+                  "Low variance",
+                  "Log transformation"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Linearity means the relationship between X and Y should be approximately straight-line for standard linear regression interpretation."
+      },
+      {
+            "question": "In the L.I.N.E. assumptions for OLS, the letter \"E\" stands for:",
+            "choices": [
+                  "Extra variables",
+                  "Equal variance",
+                  "Expected value",
+                  "Extrapolation"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Equal variance means the spread of residuals should remain reasonably constant across fitted values."
+      },
+      {
+            "question": "Multicollinearity occurs when two independent variables are highly correlated:",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 0,
+            "reasoning": "Highly correlated predictors make it harder to isolate each variable's individual effect and can make coefficients unstable."
+      },
+      {
+            "question": "Which statement about regression is correct?",
+            "choices": [
+                  "A statistically significant coefficient always proves causation",
+                  "Regression can safely predict far outside the observed data range",
+                  "Outliers can strongly distort a regression line",
+                  "Regression does not require a research question"
+            ],
+            "correctIndex": 2,
+            "reasoning": "OLS regression is sensitive to extreme values, so outliers can pull the fitted line and distort the estimated relationship."
+      }
+];
+
+    let quizData = fallbackQuizData;
+
+    // PDF reading functions
+    async function loadQuizFromPDF() {
+      try {
+        const response = await fetch('final_mock_exam.pdf');
+        if (!response.ok) {
+          throw new Error('PDF file not found');
+        }
+        
+        const arrayBuffer = await response.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+        
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items.map(item => item.str).join(' ');
+          fullText += pageText + '\n';
+        }
+        
+        const parsedQuiz = parseQuizFromText(fullText);
+        if (parsedQuiz.length > 0) {
+          quizData = parsedQuiz;
+          console.log('Successfully loaded quiz from PDF');
+        }
+      } catch (error) {
+        console.error('Failed to load PDF, using fallback data:', error);
+      }
+    }
+
+    function parseQuizFromText(text) {
+      const questions = [];
+      const lines = text.split('\n').filter(line => line.trim());
+      
+      let currentQuestion = null;
+      let questionNumber = 1;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        
+        // Detect question start (looking for numbered questions or question patterns)
+        if (line.match(/^(\d+\.|Question \d+|What|Which|How|When|Where|Why|True|False)/i)) {
+          // Save previous question if exists
+          if (currentQuestion && currentQuestion.question && currentQuestion.choices.length >= 2) {
+            questions.push(currentQuestion);
+          }
+          
+          // Start new question
+          currentQuestion = {
+            question: line.replace(/^\d+\.\s*/, '').replace(/^Question \d+:\s*/i, ''),
+            choices: [],
+            correctIndex: 0,
+            reasoning: ''
+          };
+        }
+        
+        // Detect choices (A, B, C, D or numbered options)
+        else if (currentQuestion && line.match(/^[A-D]\.|\d+\)/)) {
+          const choice = line.replace(/^[A-D]\.\s*|\d+\)\s*/, '').trim();
+          currentQuestion.choices.push(choice);
+        }
+        
+        // Detect correct answer indicators
+        else if (currentQuestion && line.match(/correct|answer/i)) {
+          const match = line.match(/([A-D]|\d+)/);
+          if (match) {
+            const answer = match[1];
+            if (answer.match(/[A-D]/)) {
+              currentQuestion.correctIndex = answer.charCodeAt(0) - 65; // A=0, B=1, etc.
+            } else {
+              currentQuestion.correctIndex = parseInt(answer) - 1;
+            }
+          }
+        }
+        
+        // Capture reasoning/explanation
+        else if (currentQuestion && line.match(/reasoning|explanation|because/i)) {
+          currentQuestion.reasoning = line.replace(/^(reasoning|explanation|because):?\s*/i, '').trim();
+        }
+      }
+      
+      // Add the last question
+      if (currentQuestion && currentQuestion.question && currentQuestion.choices.length >= 2) {
+        questions.push(currentQuestion);
+      }
+      
+      return questions;
+    }
+
+    const notesData = [
+      {
+            "title": "AI and business transformation",
+            "bullets": [
+                  "Hallucination = an LLM confidently gives a wrong or made-up answer",
+                  "Reliable AI formula = LLM + Tool + Live Data = Grounded Action",
+                  "An un-grounded LLM cannot fetch real-time facts like your bank balance",
+                  "Traditional SaaS is being challenged by AI agents",
+                  "OpenClaw = free, local, autonomous AI agent",
+                  "OpenClaw can use Telegram, Discord, or WhatsApp as the interface",
+                  "GitHub Copilot does not replace domain knowledge",
+                  "AI amplifies the skill gap rather than equalizing everyone",
+                  "Agent Orchestrator = person who manages a fleet of AI agents"
+            ]
+      },
+      {
+            "title": "Python basics",
+            "bullets": [
+                  "Variable = named storage location for data",
+                  "Assignment operator = =",
+                  "Equality comparison = ==",
+                  "Invalid variable names cannot start with a number, for example 2students",
+                  "type(25) = int",
+                  "/ returns a float",
+                  "Python indexing starts at 0",
+                  "Correct f-string syntax = f\"My name is {name}\"",
+                  "if, elif, for, while, and def lines end with :",
+                  "elif means \u201celse if\u201d",
+                  "and is true only if both conditions are true",
+                  "range(1,5) gives 1, 2, 3, 4",
+                  "break stops a loop completely",
+                  "A while loop keeps running while the condition is True",
+                  "Correct function syntax = def add(x, y):",
+                  "List comprehension creates a new list in one line",
+                  "List = mutable",
+                  "Tuple = immutable",
+                  "Set = no duplicates",
+                  "Dictionary = key-value pairs",
+                  "append() adds an item to the end of a list",
+                  "len() returns the number of items",
+                  "math.sqrt(25) = 5.0"
+            ]
+      },
+      {
+            "title": "Common Python outputs",
+            "bullets": [
+                  "mylist = [1,2,3,4,5]",
+                  "mylist[1:4] \u2192 [2, 3, 4]",
+                  "Slicing includes the start index, excludes the end index",
+                  "mydict = {\"name\": \"John\", \"age\": 25}",
+                  "mydict[\"age\"] \u2192 25",
+                  "Loop: python for fruit in [\"apple\", \"banana\", \"cherry\"]: print(fruit)",
+                  "Output = each fruit prints one by one on separate lines"
+            ]
+      },
+      {
+            "title": "Pandas essentials",
+            "bullets": [
+                  "DataFrame = like an Excel spreadsheet or SQL table",
+                  "Load CSV with pd.read_csv()",
+                  "df.head() = first 5 rows",
+                  "df.info() = structure, non-null counts, and data types",
+                  "df.describe() = summary statistics for numerical columns",
+                  "iloc = integer position",
+                  "loc = labels or conditions",
+                  "Example filter: python df.loc[df[\"season\"] == 2]",
+                  "Multiple conditions in pandas need parentheses and &",
+                  "axis=1 means columns",
+                  "Rename columns with .rename()",
+                  "In rename(), columns use axis=1",
+                  "Select integer columns: python df.select_dtypes(include=\"int\")",
+                  "Save CSV without index: python to_csv(..., index=False)",
+                  "value_counts() = frequency of each unique value",
+                  "unique() = distinct values only",
+                  "pd.to_datetime(..., errors=\"coerce\") converts invalid dates to missing values"
+            ]
+      },
+      {
+            "title": "Missing data and EDA",
+            "bullets": [
+                  "Missing values: .isnull() or .isna()",
+                  "dropna() by default drops rows with at least one missing value",
+                  "Deleting missing rows is not always the best solution",
+                  "Replace missing values with fillna()",
+                  "Mean imputation: python df[\"column\"].fillna(df[\"column\"].mean())",
+                  "groupby(...).agg(...) = grouped summary statistics",
+                  "agg = aggregate",
+                  "Best chart for spotting outliers = boxplot",
+                  "Winsorization = cap extreme values instead of deleting them",
+                  "Top 1% / bottom 1% winsorization = 0.99 and 0.01",
+                  "Z-score method identifies outliers by standard deviations from the mean",
+                  "Z-score standardization = mean 0, standard deviation 1",
+                  "Forward fill uses the previous value, not the next one"
+            ]
+      },
+      {
+            "title": "Correlation and regression",
+            "bullets": [
+                  "Pearson correlation r ranges from -1 to 1",
+                  "Correlation does not imply causation",
+                  "Correlation = tightness of relationship",
+                  "Slope / coefficient = exact rate of change",
+                  "A steep regression line does not always mean strong correlation",
+                  "Spearman is better for skewed data or outliers",
+                  "Simple Linear Regression = one independent variable and one dependent variable",
+                  "Coefficient (Beta) = how much Y changes when X increases by 1 unit",
+                  "R\u00b2 = how much variance in Y is explained by the model",
+                  "Standard significance threshold = p < 0.05",
+                  "A p-value of 0.03 is statistically significant",
+                  "A t-statistic above about 2 in absolute value usually suggests stronger evidence",
+                  "Multicollinearity = independent variables are highly correlated with each other",
+                  "In L.I.N.E.:",
+                  "L = Linearity",
+                  "E = Equal Variance",
+                  "Outliers can strongly distort a regression line"
+            ]
+      },
+      {
+            "title": "High-probability traps",
+            "bullets": [
+                  "\u201cAlways,\u201d \u201cfully,\u201d and \u201cproves\u201d are often false",
+                  "iloc is position-based, not label-based",
+                  "axis=1 = columns",
+                  "& is used in pandas filtering, not plain and",
+                  "dropna() drops rows by default",
+                  "Set = unique values only",
+                  "Tuple = immutable",
+                  "Correlation is not causation",
+                  "Spearman handles outliers better than Pearson",
+                  "R\u00b2 is explained variance, not slope",
+                  "Beta/coefficient is the rate of change",
+                  "p-value threshold is usually 0.05"
+            ]
+      },
+      {
+            "title": "Practical exam reminders",
+            "bullets": [
+                  "Make sure the file path is correct before loading data",
+                  "If needed, change directory or filename so the dataset loads properly",
+                  "Use the correct pandas method for the task",
+                  "Print the result so the output is visible",
+                  "Write the final exact answer explicitly in a comment or markdown cell",
+                  "You do not have to follow the skeleton code exactly if your own code works"
+            ]
+      },
+      {
+            "title": "Super short memory hooks",
+            "bullets": [
+                  "Hallucination \u2192 fake answer",
+                  "Grounded AI \u2192 LLM + tool + live data",
+                  "OpenClaw \u2192 free local autonomous agent",
+                  "= assign, == compare",
+                  "Index starts at 0",
+                  "read_csv, head, info, describe",
+                  "loc labels, iloc positions",
+                  "isna, dropna, fillna",
+                  "Winsorize = cap, don\u2019t delete",
+                  "Spearman for outliers",
+                  "Correlation \u2260 causation",
+                  "Beta = slope",
+                  "R\u00b2 = explained variance",
+                  "p < 0.05"
+            ]
+      }
+];
+
+    const homeSection = document.getElementById("homeSection");
+    const mockExamSection = document.getElementById("mockExamSection");
+    const reviewSection = document.getElementById("reviewSection");
+
+    const openReview = document.getElementById("openReview");
+    const openExam = document.getElementById("openExam");
+    const resumeExam = document.getElementById("resumeExam");
+    const backFromExam = document.getElementById("backFromExam");
+    const backFromReview = document.getElementById("backFromReview");
+
+    const questionCounter = document.getElementById("questionCounter");
+    const questionText = document.getElementById("questionText");
+    const choicesContainer = document.getElementById("choicesContainer");
+    const feedbackText = document.getElementById("feedbackText");
+    const nextButton = document.getElementById("nextButton");
+    const resultSection = document.getElementById("resultSection");
+    const quizSection = document.getElementById("quizSection");
+    const scoreText = document.getElementById("scoreText");
+    const restartButton = document.getElementById("restartButton");
+    const progressFill = document.getElementById("progressFill");
+    const progressLabel = document.getElementById("progressLabel");
+    const progressPercent = document.getElementById("progressPercent");
+    const notesContainer = document.getElementById("notesContainer");
+
+    let currentQuestion = 0;
+    let score = 0;
+    let canAdvance = false;
+    const EXAM_STATE_KEY = "mock_exam_state_v1";
+
+    function saveExamState(completed = false) {
+      const payload = {
+        currentQuestion,
+        score,
+        completed
+      };
+      localStorage.setItem(EXAM_STATE_KEY, JSON.stringify(payload));
+    }
+
+    function loadExamState() {
+      const raw = localStorage.getItem(EXAM_STATE_KEY);
+      if (!raw) return null;
+      try {
+        const parsed = JSON.parse(raw);
+        if (
+          typeof parsed.currentQuestion !== "number" ||
+          typeof parsed.score !== "number" ||
+          parsed.currentQuestion < 0 ||
+          parsed.currentQuestion > quizData.length
+        ) {
+          return null;
+        }
+        return parsed;
+      } catch {
+        return null;
+      }
+    }
+
+    function updateResumeButton() {
+      const state = loadExamState();
+      if (!state || state.completed || state.currentQuestion >= quizData.length) {
+        resumeExam.disabled = true;
+        resumeExam.style.opacity = "0.55";
+        resumeExam.style.cursor = "not-allowed";
+        resumeExam.querySelector("p").textContent = "No saved progress yet. Start a new mock exam.";
+        return;
+      }
+      resumeExam.disabled = false;
+      resumeExam.style.opacity = "1";
+      resumeExam.style.cursor = "pointer";
+      resumeExam.querySelector("p").textContent =
+        `Continue at question ${state.currentQuestion + 1} with score ${state.score}.`;
+    }
+
+    function showHome() {
+      homeSection.classList.remove("hidden");
+      mockExamSection.classList.add("hidden");
+      reviewSection.classList.add("hidden");
+      updateResumeButton();
+    }
+
+    function showMockExam(resume = false) {
+      homeSection.classList.add("hidden");
+      reviewSection.classList.add("hidden");
+      mockExamSection.classList.remove("hidden");
+      if (!resume) {
+        startExam();
+        return;
+      }
+      const state = loadExamState();
+      if (!state || state.completed || state.currentQuestion >= quizData.length) {
+        startExam();
+        return;
+      }
+      currentQuestion = state.currentQuestion;
+      score = state.score;
+      canAdvance = false;
+      resultSection.classList.add("hidden");
+      quizSection.classList.remove("hidden");
+      renderQuestion();
+    }
+
+    function showReview() {
+      homeSection.classList.add("hidden");
+      mockExamSection.classList.add("hidden");
+      reviewSection.classList.remove("hidden");
+      renderNotes();
+    }
+
+    function renderNotes() {
+      if (notesContainer.dataset.loaded === "yes") return;
+      notesContainer.innerHTML = "";
+      notesData.forEach((section) => {
+        const card = document.createElement("article");
+        card.className = "note-card";
+
+        const title = document.createElement("h3");
+        title.textContent = section.title;
+
+        const list = document.createElement("ul");
+        section.bullets.forEach((bullet) => {
+          const li = document.createElement("li");
+          li.textContent = bullet;
+          list.appendChild(li);
+        });
+
+        card.appendChild(title);
+        card.appendChild(list);
+        notesContainer.appendChild(card);
+      });
+      notesContainer.dataset.loaded = "yes";
+    }
+
+    function updateProgress() {
+      const answeredCount = currentQuestion;
+      const percent = Math.round((answeredCount / quizData.length) * 100);
+      progressFill.style.width = `${percent}%`;
+      progressLabel.textContent = `${answeredCount} of ${quizData.length} answered`;
+      progressPercent.textContent = `${percent}%`;
+    }
+
+    function renderQuestion() {
+      const item = quizData[currentQuestion];
+      canAdvance = false;
+      nextButton.disabled = true;
+      nextButton.classList.remove("enabled");
+      feedbackText.textContent = "";
+      choicesContainer.innerHTML = "";
+
+      questionCounter.textContent = `Question ${currentQuestion + 1} of ${quizData.length}`;
+      // Render question text + optional code block
+      questionText.innerHTML = "";
+      const qTextNode = document.createElement("span");
+      qTextNode.textContent = item.question;
+      questionText.appendChild(qTextNode);
+      if (item.code) {
+        const pre = document.createElement("pre");
+        pre.className = "question-code";
+        const codeEl = document.createElement("code");
+        codeEl.textContent = item.code;
+        pre.appendChild(codeEl);
+        questionText.appendChild(pre);
+      }
+      updateProgress();
+
+      item.choices.forEach((choice, index) => {
+        const row = document.createElement("div");
+        row.className = "choice-row";
+
+        const button = document.createElement("button");
+        button.className = "choice-btn";
+        button.textContent = choice;
+        button.type = "button";
+
+        const popup = document.createElement("div");
+        popup.className = "explanation-popup";
+        popup.textContent = item.reasoning;
+
+        button.addEventListener("click", () => {
+          if (canAdvance) return;
+
+          const buttons = choicesContainer.querySelectorAll(".choice-btn");
+          buttons.forEach((btn) => (btn.disabled = true));
+
+          const correctRow = choicesContainer.children[item.correctIndex];
+          const correctButton = correctRow.querySelector(".choice-btn");
+          const correctPopup = correctRow.querySelector(".explanation-popup");
+          correctButton.classList.add("correct");
+          correctPopup.style.display = "block";
+
+          if (index === item.correctIndex) {
+            feedbackText.style.color = "var(--right)";
+            feedbackText.textContent = "Correct. You can now move to the next question.";
+            score += 1;
+          } else {
+            button.classList.add("wrong");
+            feedbackText.style.color = "var(--wrong)";
+            feedbackText.textContent = "Incorrect. Correct answer is highlighted. Click next to continue.";
+          }
+
+          canAdvance = true;
+          nextButton.disabled = false;
+          nextButton.classList.add("enabled");
+        });
+
+        row.appendChild(button);
+        row.appendChild(popup);
+        choicesContainer.appendChild(row);
+      });
+      saveExamState(false);
+    }
+
+    function startExam() {
+      currentQuestion = 0;
+      score = 0;
+      canAdvance = false;
+      resultSection.classList.add("hidden");
+      quizSection.classList.remove("hidden");
+      saveExamState(false);
+      renderQuestion();
+    }
+
+    nextButton.addEventListener("click", () => {
+      if (!canAdvance) return;
+
+      currentQuestion += 1;
+      if (currentQuestion >= quizData.length) {
+        quizSection.classList.add("hidden");
+        resultSection.classList.remove("hidden");
+        progressFill.style.width = "100%";
+        progressLabel.textContent = `${quizData.length} of ${quizData.length} answered`;
+        progressPercent.textContent = "100%";
+        scoreText.textContent = `Your final score: ${score} / ${quizData.length}`;
+        saveExamState(true);
+      } else {
+        saveExamState(false);
+        renderQuestion();
+      }
+    });
+
+    restartButton.addEventListener("click", startExam);
+    openExam.addEventListener("click", () => showMockExam(false));
+    resumeExam.addEventListener("click", () => showMockExam(true));
+    openReview.addEventListener("click", showReview);
+    backFromExam.addEventListener("click", showHome);
+    backFromReview.addEventListener("click", showHome);
+
+    // Initialize the app
+    async function initializeApp() {
+      await loadQuizFromPDF();
+      showHome();
+    }
+
+    initializeApp();
+  </script>
+</body>
+</html>
