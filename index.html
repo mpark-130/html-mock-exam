@@ -297,7 +297,7 @@
             "reasoning": "The course defines hallucination as an LLM giving a confident but false or invented answer when it is not properly connected to tools or live data."
       },
       {
-            "question": "Traditional SaaS software is being challenged because AI agents can now handle tasks more flexibly",
+            "question": "Traditional SaaS software is being challenged because AI agents can now",
             "choices": [
                   "True",
                   "False"
@@ -306,7 +306,7 @@
             "reasoning": "The lectures argue that rigid SaaS products are under pressure because AI agents can handle many tasks more flexibly across tools and workflows."
       },
       {
-            "question": "What is the role of a person who manages a fleet of AI agents to run business operations?",
+            "question": "What is the role of a person who manages a fleet of AI agents to run business",
             "choices": [
                   "Data Engineer",
                   "Software Developer",
@@ -368,7 +368,7 @@
             "reasoning": "The lectures stress that AI helps users work faster, but domain knowledge is still needed to ask the right questions and judge whether outputs make sense."
       },
       {
-            "question": 'Fill in the blank: "AI does not ______ everyone - it ______ the gap between skilled and unskilled workers"',
+            "question": "Fill in the blank: “AI does not ______ everyone — it ______ the gap between",
             "choices": [
                   "Equalize / Amplifies",
                   "Help / Closes",
@@ -379,7 +379,146 @@
             "reasoning": "The course repeatedly argues that AI increases the advantage of skilled users rather than making everyone equally capable."
       },
       {
-            "question": 'What does the following code do? python for fruit in ["apple", "banana", "cherry"]: print(fruit)',
+            "question": "Why is Conda useful?",
+            "choices": [
+                  "It replaces Python",
+                  "It creates isolated virtual environments",
+                  "It is only for Jupyter markdown",
+                  "It removes the need for packages"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Conda helps separate project environments so packages and versions do not conflict across different tasks."
+      },
+      {
+            "question": "A variable in Python is best described as:",
+            "choices": [
+                  "A fixed keyword",
+                  "A named storage location for data",
+                  "A chart type",
+                  "A file extension"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Variables are names that point to values stored in memory, which lets the program reuse and modify data."
+      },
+      {
+            "question": "Which symbol is the assignment operator in Python?",
+            "choices": [
+                  "==",
+                  ":",
+                  "=",
+                  "->"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The single equals sign assigns a value to a variable, while double equals checks equality."
+      },
+      {
+            "question": "Which variable name is invalid in Python?",
+            "choices": [
+                  "student_count",
+                  "avgtemp",
+                  "2students",
+                  "class2"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Python variable names cannot begin with a digit, so 2students breaks the naming rules."
+      },
+      {
+            "question": "What is the output type of type(25)?",
+            "choices": [
+                  "float",
+                  "int",
+                  "str",
+                  "bool"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The value 25 is a whole number, and Python stores whole numbers as integers."
+      },
+      {
+            "question": "In Python, the / operator always returns a:",
+            "choices": [
+                  "string",
+                  "boolean",
+                  "float",
+                  "list"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Standard division in Python produces a floating-point result, even when both inputs are integers."
+      },
+      {
+            "question": "What is the output of the following code? mylist = [1, 2, 3, 4, 5] print(mylist[1:4])",
+            "choices": [
+                  "[1, 2, 3]",
+                  "[2, 3, 4]",
+                  "[2, 3, 4, 5]",
+                  "[1, 2, 3, 4]"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Python slicing includes the start index and excludes the end index, so positions 1, 2, and 3 are returned.",
+      },
+      {
+            "question": "Python list indexing starts at 1.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Python uses zero-based indexing, so the first item is at index 0."
+      },
+      {
+            "question": "Which data type represents truth values?",
+            "choices": [
+                  "str",
+                  "bool",
+                  "float",
+                  "tuple"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Boolean values are True and False, and their type in Python is bool."
+      },
+      {
+            "question": "Which syntax is used for an f-string?",
+            "choices": [
+                  "\"My name is {name}\"",
+                  "f\"My name is {name}\"",
+                  "str(\"My name is {name}\")",
+                  "format\"My name is {name}\""
+            ],
+            "correctIndex": 1,
+            "reasoning": "An f-string must have f directly before the opening quotation mark to evaluate expressions inside braces."
+      },
+      {
+            "question": "An if statement condition in Python should end with a colon.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 0,
+            "reasoning": "Python requires a colon at the end of control statements such as if, elif, else, for, and while."
+      },
+      {
+            "question": "In Python, elif means:",
+            "choices": [
+                  "end loop if",
+                  "else if",
+                  "equal if",
+                  "extra line if"
+            ],
+            "correctIndex": 1,
+            "reasoning": "elif adds another condition branch after an initial if statement."
+      },
+      {
+            "question": "The logical operator and returns True when:",
+            "choices": [
+                  "At least one condition is True",
+                  "Both conditions are True",
+                  "Both conditions are False",
+                  "The first condition is False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "and is only true when every connected condition is true. "
+      },
+      {
+            "question": "What does the following code do? python for fruit in [\"apple\", \"banana\", \"cherry\"]: print(fruit)",
             "choices": [
                   "Prints all three fruits at once",
                   "Prints each fruit one by one on separate lines",
@@ -391,18 +530,441 @@
             "code": "for fruit in [\"apple\", \"banana\", \"cherry\"]:\n    print(fruit)"
       },
       {
+            "question": "What numbers are produced by range(1, 5)?",
+            "choices": [
+                  "1, 2, 3, 4",
+                  "1, 2, 3, 4, 5",
+                  "0, 1, 2, 3, 4",
+                  "2, 3, 4, 5"
+            ],
+            "correctIndex": 0,
+            "reasoning": "range(1, 5) starts at 1 and stops before 5."
+      },
+      {
+            "question": "What does break do inside a loop?",
+            "choices": [
+                  "Skips one iteration",
+                  "Stops the loop completely",
+                  "Restarts the loop",
+                  "Creates an error"
+            ],
+            "correctIndex": 1,
+            "reasoning": "break exits the loop immediately when a chosen condition is met."
+      },
+      {
+            "question": "A while loop runs only once, regardless of the condition.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A while loop continues running as long as its condition stays true."
+      },
+      {
+            "question": "What is the correct syntax to define a function in Python?",
+            "choices": [
+                  "function add(x, y):",
+                  "def add(x, y):",
+                  "define add(x, y):",
+                  "fun add(x, y):"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Python uses the def keyword to define a function."
+      },
+      {
+            "question": "List comprehension is mainly used to:",
+            "choices": [
+                  "delete files",
+                  "create a new list in one line",
+                  "sort dictionaries only"
+            ],
+            "correctIndex": 1,
+            "reasoning": "List comprehension is a compact way to build a list by transforming or ltering another iterable."
+      },
+      {
+            "question": "Lists are mutable in Python.",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 0,
+            "reasoning": "Lists can be modified after creation, for example by adding, removing, or changing elements."
+      },
+      {
+            "question": "Which data structure is immutable?",
+            "choices": [
+                  "list",
+                  "dictionary",
+                  "tuple",
+                  "set"
+            ],
+            "correctIndex": 2,
+            "reasoning": "Tuples cannot be changed after they are created, which is what immutable means."
+      },
+      {
+            "question": "Which data structure does NOT allow duplicate values?",
+            "choices": [
+                  "List",
+                  "Tuple",
+                  "Set",
+                  "Dictionary value"
+            ],
+            "correctIndex": 2,
+            "reasoning": "A set automatically keeps only unique values, so duplicates are removed."
+      },
+      {
+            "question": "A dictionary stores data as:",
+            "choices": [
+                  "rows and columns",
+                  "key-value pairs",
+                  "indexed-only numbers",
+                  "sorted duplicates"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Dictionaries map keys to values, which makes them useful for fast lookup by name rather than by position."
+      },
+      {
+            "question": "What is the output of the following code? mydict = {\"name\": \"John\", \"age\": 25} print(mydict[\"age\"])",
+            "choices": [
+                  "\"name\"",
+                  "\"John\"",
+                  "25",
+                  "Error"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The key \"age\" points to the value 25, so that value is returned.",
+            "code": "mydict = {\"name\": \"John\", \"age\": 25}\nprint(mydict[\"age\"])"
+      },
+      {
+            "question": "What does the append() method do for a list?",
+            "choices": [
+                  "Removes the first item",
+                  "Adds an item to the end",
+                  "Sorts the list",
+                  "Converts to tuple"
+            ],
+            "correctIndex": 1,
+            "reasoning": "append() inserts one new element at the end of the existing list."
+      },
+      {
+            "question": "What does len() return?",
+            "choices": [
+                  "The maximum value",
+                  "The data type",
+                  "The number of items",
+                  "The average"
+            ],
+            "correctIndex": 2,
+            "reasoning": "len() counts how many elements are inside a sequence or collection."
+      },
+      {
+            "question": "After import math, what is the result of math.sqrt(25)?",
+            "choices": [
+                  "25",
+                  "10",
+                  "5.0",
+                  "2.5"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The square root of 25 is 5, and math.sqrt() returns the result as a float."
+      },
+      {
+            "question": "A pandas DataFrame is best described as:",
+            "choices": [
+                  "A Python list",
+                  "An Excel spreadsheet or SQL table",
+                  "A plain text le",
+                  "A loop method"
+            ],
+            "correctIndex": 1,
+            "reasoning": "A DataFrame stores tabular data in rows and columns, which makes it similar to spreadsheets and database tables."
+      },
+      {
+            "question": "In real-world data analysis, the course recommends using ______ instead of",
+            "choices": [
+                  "random",
+                  "pandas",
+                  "turtle",
+                  "math"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Pandas is designed for structured tabular data and is much more efficient for real-world business datasets."
+      },
+      {
+            "question": "Which os function changes the working directory?",
+            "choices": [
+                  "os.getcwd()",
+                  "os.chdir()",
+                  "os.listdir()",
+                  "os.path.join()"
+            ],
+            "correctIndex": 1,
+            "reasoning": "os.chdir() changes the current working directory, while os.getcwd() only displays it."
+      },
+      {
+            "question": "Which pandas method is used to load a CSV file into a DataFrame?",
+            "choices": [
+                  "pd.load_csv()",
+                  "pd.open_csv()",
+                  "pd.read_csv()"
+            ],
+            "correctIndex": 2,
+            "reasoning": "pd.read_csv() is the standard pandas function for importing CSV data into a DataFrame."
+      },
+      {
+            "question": "By default, df.head() shows how many rows?",
+            "choices": [
+                  "3",
+                  "5",
+                  "10",
+                  "All rows"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Unless another value is specified, head() displays the first 5 rows."
+      },
+      {
+            "question": "Which statement about iloc and loc is correct?",
+            "choices": [
+                  "iloc uses labels and loc uses positions",
+                  "Both only use labels",
+                  "iloc uses numerical positions and loc uses labels or conditions",
+                  "Both only use positions"
+            ],
+            "correctIndex": 2,
+            "reasoning": "iloc is position-based indexing, while loc is label-based and can also be used with Boolean conditions."
+      },
+      {
+            "question": "To select only rows where the season column equals 2, which expression is correct?",
+            "choices": [
+                  "df.loc[df[\"index\"] == 2]",
+                  "df.loc[df[\"season\"] == 2]",
+                  "df.loc[df[\"row\"] == 2]",
+                  "df.loc[df[\"ﬁ lter\"] == 2]"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The filter must reference the actual column name you want to test, which is season."
+      },
+      {
+            "question": "What should you use when combining multiple conditions in pandas filtering?",
+            "choices": [
+                  "and only",
+                  "&, with each condition wrapped in parentheses",
+                  "+",
+                  ","
+            ],
+            "correctIndex": 1,
+            "reasoning": "Pandas uses elementwise logical operators such as &, and each separate condition must be wrapped in parentheses."
+      },
+      {
+            "question": "To select only integer columns from a DataFrame, which code is correct?",
+            "choices": [
+                  "df.select_rows(int)",
+                  "df.select_dtypes(include=\"int\")",
+                  "df.filter(int)",
+                  "df.iloc[\"int\"]"
+            ],
+            "correctIndex": 1,
+            "reasoning": "select_dtypes() is designed for type-based filtering, and include=\"int\" keeps integer columns."
+      },
+      {
+            "question": "In a pandas operation, what does axis=1 refer to?",
+            "choices": [
+                  "Rows",
+                  "Values",
+                  "Columns",
+                  "Index numbers"
+            ],
+            "correctIndex": 2,
+            "reasoning": "In pandas, axis 0 is the row direction and axis 1 is the column direction."
+      },
+      {
+            "question": "Which method would you use to rename a column in a DataFrame?",
+            "choices": [
+                  ".relabel()",
+                  ".rename()",
+                  ".change()",
+                  ".column_name()"
+            ],
+            "correctIndex": 1,
+            "reasoning": ".rename() is the pandas method used to change row or column labels."
+      },
+      {
+            "question": "In rename(), which axis value targets columns?",
+            "choices": [
+                  "axis=0",
+                  "axis=1",
+                  "axis=-1",
+                  "axis=None"
+            ],
+            "correctIndex": 1,
+            "reasoning": "axis=1 tells pandas to apply the renaming to columns rather than rows."
+      },
+      {
+            "question": "To save a CSV file without writing the index column, which argument should you use?",
+            "choices": [
+                  "header=False",
+                  "axis=1",
+                  "index=False",
+                  "drop=True"
+            ],
+            "correctIndex": 2,
+            "reasoning": "index=False prevents pandas from exporting the row index as an extra column."
+      },
+      {
+            "question": "What information does df.info() mainly provide?",
+            "choices": [
+                  "Only the mean of numeric columns",
+                  "Rows, columns, non-null counts, and data types",
+                  "Only missing values",
+                  "Only unique values"
+            ],
+            "correctIndex": 1,
+            "reasoning": "info() is a structural summary of the DataFrame, not a statistical summary."
+      },
+      {
+            "question": "What does df.describe() mainly summarize by default?",
+            "choices": [
+                  "Only text columns",
+                  "Only index labels",
+                  "Numerical columns",
+                  "Only missing rows"
+            ],
+            "correctIndex": 2,
+            "reasoning": "By default, describe() returns summary statistics for numeric columns such as mean, standard deviation, and quartiles."
+      },
+      {
+            "question": "What does value_counts() show for a column?",
+            "choices": [
+                  "The column type",
+                  "Frequency of each unique value",
+                  "The mean and median",
+                  "Correlation coefficients"
+            ],
+            "correctIndex": 1,
+            "reasoning": "value_counts() counts how often each distinct value appears in a Series."
+      },
+      {
+            "question": "What does unique() return?",
+            "choices": [
+                  "Distinct values without counts",
+                  "Sorted values with percentages",
+                  "Only the most common value",
+                  "Only missing values"
+            ],
+            "correctIndex": 0,
+            "reasoning": "unique() lists the different observed values but does not count them."
+      },
+      {
+            "question": "Why would you use pd.to_datetime(..., errors=\"coerce\")?",
+            "choices": [
+                  "To sort by date automatically",
+                  "To turn invalid date values into missing values instead of stopping with an error",
+                  "To convert dates into integers",
+                  "To drop all date columns"
+            ],
+            "correctIndex": 1,
+            "reasoning": "errors=\"coerce\" converts bad date strings to missing values so the rest of the code can continue running."
+      },
+      {
+            "question": "Which pandas method is used to detect missing values in a column?",
+            "choices": [
+                  ".missing()",
+                  ".isnull()",
+                  ".isna()",
+                  "Both B and C are correct"
+            ],
+            "correctIndex": 3,
+            "reasoning": ".isnull() and.isna() are equivalent in pandas and both identify missing values."
+      },
+      {
+            "question": "Deleting rows with missing values is always the best solution, regardless of",
+            "choices": [
+                  "True",
+                  "False"
+            ],
+            "correctIndex": 1,
+            "reasoning": "Removing missing rows can throw away too much information, especially in smaller datasets or when missingness is systematic."
+      },
+      {
+            "question": "What does dropna() do by default?",
+            "choices": [
+                  "Drops all columns with missing values",
+                  "Drops any row that has at least one missing value",
+                  "Replaces NaN with 0",
+                  "Returns a count of missing values"
+            ],
+            "correctIndex": 1,
+            "reasoning": "The default behavior of dropna() is to remove rows containing missing values."
+      },
+      {
+            "question": "Which method is used to replace missing values with a mean or median? df[\"column\"].fillna(df[\"column\"].________())",
+            "choices": [
+                  "fillna()",
+                  "clip()",
+                  "agg()",
+                  "merge()"
+            ],
+            "correctIndex": 0,
+            "reasoning": "fillna() is used to insert a chosen replacement value such as a column mean or median."
+      },
+      {
+            "question": "To replace missing values in a column with the column mean, which code correctly fills in the blank?",
+            "choices": [
+                  "median",
+                  "average",
+                  "mean",
+                  "Either A or C"
+            ],
+            "correctIndex": 2,
+            "reasoning": "The blank asks specifically for replacement with the column mean, so the correct method is mean().",
+            
+      },
+      {
+            "question": "What is the main purpose of groupby(...).agg(...)?",
+            "choices": [
+                  "To rename variables",
+                  "To compute selected summary statistics by group",
+                  "To create missing values",
+                  "To reverse rows"
+            ],
+            "correctIndex": 1,
+            "reasoning": "groupby() splits the data into categories and agg() calculates summary statistics such as mean, count, or standard deviation for each group."
+      },
+      {
+            "question": "In the.groupby() function, what does.agg() stand for?",
+            "choices": [
+                  "Aggregate",
+                  "Align",
+                  "Argument",
+                  "Adjust"
+            ],
+            "correctIndex": 0,
+            "reasoning": ".agg() is short for aggregate because it summarizes grouped data using one or more functions."
+      },
+      {
+            "question": "Which chart type is best for spotting individual extreme outlier dots in your data?",
+            "choices": [
+                  "Histogram",
+                  "Line chart",
+                  "Boxplot",
+                  "Pie chart"
+            ],
+            "correctIndex": 2,
+            "reasoning": "A boxplot clearly displays outliers as points beyond the whiskers, making extremes easier to see."
+      },
+      {
             "question": "What is winsorization?",
             "choices": [
                   "Deleting all outliers from the dataset",
                   "Capping extreme values at defined quantile limits instead of removing them",
                   "Replacing missing values with the mean",
-                  "Sorting the data from smallest to largest",
+                  "Sorting the data from smalfilest to largest"
             ],
             "correctIndex": 1,
             "reasoning": "Winsorization reduces the influence of extreme values while keeping the observations in the dataset."
       },
       {
-            "question": "In quantile-based winsorization, which pair is used for top 1 percent and bottom 1 percent?",
+            "question": "In quantile-based winsorization, which pair is used for top 1 percent and",
             "choices": [
                   "0.90 and 0.10",
                   "0.95 and 0.05",
@@ -473,7 +1035,7 @@
             "reasoning": "Correlation tells how closely two variables move together, while slope tells how much Y changes for a one-unit increase in X."
       },
       {
-            "question": "A steep regression line always means a strong correlation between two variables?",
+            "question": "A steep regression line always means a strong correlation between two",
             "choices": [
                   "True",
                   "False"
@@ -493,7 +1055,7 @@
             "reasoning": "Spearman uses ranks instead of raw values, so it is less sensitive to skewness and outliers."
       },
       {
-            "question": "One major reason to examine a correlation matrix before regression is to detect:",
+            "question": "One major reason to examine a correlation matrix before regression is to",
             "choices": [
                   "autocorrect",
                   "multicollinearity",
